@@ -92,3 +92,9 @@ output
 model
 
 .db
+
+\.cproject
+
+\.project
+
+\.pydevproject
