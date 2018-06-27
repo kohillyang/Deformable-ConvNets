@@ -2,7 +2,7 @@
 MXNET_VERSION: "mxnet"
 output_path: "./output/models/1280"
 symbol: resnet_v1_101_rfcn_dcn
-gpus: '4,5,7,8'
+gpus: '4,3,7,8'
 CLASS_AGNOSTIC: true
 SCALES:
 - 1280

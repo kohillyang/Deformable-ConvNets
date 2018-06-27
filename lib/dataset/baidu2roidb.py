@@ -103,6 +103,7 @@ class bbox_Aug_val():
 class DetectDataset(mx.gluon.data.Dataset):
     def __init__(self,
                  anno__path,
+                 images_set = None,
                  reindex = None
                  ):
         self.img_root = "/data1/zyx/yks/baidu/round2/datasets/train/"
@@ -114,17 +115,27 @@ class DetectDataset(mx.gluon.data.Dataset):
             # print(self.lines[i])
             for j in range(5):
                 self.lines[i][j+1] = int(self.lines[i][j+1])
-
+                # assert self.lines[i][j+1] > 0
         self.obj = {}
         for l in self.lines:
             img_name,cls,x0,y0,x1,y1 = l
-            img_path = os.path.join(self.img_root,img_name)
+            img_path = img_name
             assert cls < self.num_classes
             try:
                 self.obj[img_path].append([x0,y0,x1,y1,cls])
             except KeyError:
                 self.obj[img_path]= [[x0,y0,x1,y1,cls]]
+
+        # filter images
+        if images_set:
+            self.obj_filtered = {}
+            for key in self.obj:
+                if key in images_set:
+                    self.obj_filtered[key] = self.obj[key]
+        self.obj = self.obj_filtered
+
         self.keys = list(self.obj.keys())
+
         if reindex == None:
             self.reindex = list(range(len(self.keys)))
         else:
@@ -134,7 +145,7 @@ class DetectDataset(mx.gluon.data.Dataset):
         return len(self.reindex)
     def __getitem__(self, idx):
         img_path = self.keys[idx]
-        img_path = os.path.join(img_path)
+        img_path = os.path.join(self.img_root,img_path)
         assert os.path.exists(img_path),img_path
 
         img_ori = cv2.imread(img_path)[:,:,::-1]
@@ -143,8 +154,8 @@ class DetectDataset(mx.gluon.data.Dataset):
 
         return img_path,mx.nd.array(img_ori),bboxes
 
-def getDataset(txt_path):
-    all_dataset = DetectDataset(txt_path)
+def getDataset(txt_path,images_set):
+    all_dataset = DetectDataset(txt_path,images_set)
 
     return all_dataset
 def write_roid_db(dataset,db_prefix = "dataset_processed/train",aug = None):
@@ -193,24 +204,23 @@ def viz_roidb(db_path):
         plt.show()
     return
 
-def train_test_split(train_txt = "/data1/zyx/yks/baidu/round2/datasets/train.txt"):
-
-    with open(train_txt,"rt") as f:
-        train_all = f.readlines()
-    from sklearn.model_selection import train_test_split
-    train_train,train_val =  train_test_split(train_all,random_state=42,test_size = 0.1)
-    with open(os.path.join(os.path.dirname(train_txt),"train_train.txt"),"wt") as f:
-        for l in train_train:
-            f.write(l)
-    with open(os.path.join(os.path.dirname(train_txt),"train_val.txt"),"wt") as f:
-        for l in train_val:
-            f.write(l)
-
+def label_train_test_split(train_txt = "/data1/zyx/yks/baidu/round2/datasets/train.txt"):
+    import pandas as pd
+    image_anno_all = pd.read_csv(train_txt,header=None,names=["id","label","x1","y1","x2","y2"],sep=None)
+    img_files_unique = image_anno_all.drop_duplicates(["id"])
+    train_pd,val_pd = train_test_split(img_files_unique,test_size=0.1,random_state=37,shuffle=True,stratify=img_files_unique["label"])
+    train_images = set(train_pd["id"])
+    val_images = set(val_pd["id"])
+    return train_images,val_images
 if __name__ == '__main__':
+    # label_train_test_split()
+    # exit(-1)
     # from matplotlib import pyplot as plt
     # from gluoncv.utils import viz
     # # logging.basicConfig(level=logging.INFO)
-    train_dataset = getDataset("/data1/zyx/yks/baidu/round2/datasets/train_train.txt")
+    train_images,val_images = label_train_test_split()
+    print(len(train_images),len(val_images))
+    train_dataset = getDataset("/data1/zyx/yks/baidu/round2/datasets/train.txt",images_set = train_images )
     print(len(train_dataset))
     import gluoncv,matplotlib.pyplot as plt
     # train_aug = bbox_Aug_train()
