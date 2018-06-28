@@ -14,6 +14,7 @@ import argparse
 import logging
 import pprint
 import os
+os.environ["MXNET_CUDNN_AUTOTUNE_DEFAULT"] = "0"
 import sys
 from config.config import config, update_config
 

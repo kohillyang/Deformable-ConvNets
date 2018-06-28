@@ -6,10 +6,11 @@ def load_gt_roidb(dataset_name, image_set_name, root_path, dataset_path, result_
                   flip=False):
     """ load ground truth roidb """
     print(dataset_name,image_set_name,root_path,dataset_path)
-    if "baidu" in dataset_name:
+    if "baidu" in dataset_name or "synth" in dataset_name:
         import pickle
         roidb = pickle.load(open(dataset_path,"rb"))
         return roidb
+
     imdb = eval(dataset_name)(image_set_name, root_path, dataset_path, result_path)
     roidb = imdb.gt_roidb()
     if flip:

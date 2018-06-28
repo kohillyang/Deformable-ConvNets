@@ -1,17 +1,17 @@
 ---
 MXNET_VERSION: "mxnet"
-output_path: "./output/models/1280"
+output_path: "./output/models/synth1k_res18"
 symbol: resnet_v1_101_rfcn_dcn
 gpus: '4,3,7,8'
 CLASS_AGNOSTIC: true
 SCALES:
-- 1280
-- 1280
+- 512
+- 512
 default:
   frequent: 100
   kvstore: device
 network:
-  pretrained: "model/rfcn_dcn_coco"
+  pretrained: "model/resnet-18"
   pretrained_epoch: 0
   PIXEL_MEANS:
   - 103.06
@@ -49,12 +49,12 @@ network:
   - 32
   NUM_ANCHORS: 12
 dataset:
-  NUM_CLASSES: 61
-  dataset: baidu
-  dataset_path: "output/dataset/train/roidb.pickle"
-  image_set: baidu
+  NUM_CLASSES: 11
+  dataset: synthText1k
+  dataset_path: "/data1/zyx/yks/dataset/synthText/1k/roidb.pickle"
+  image_set: synthText1k
   root_path: "./data"
-  test_image_set: baidu_val
+  test_image_set: synthText1k
   proposal: rpn
 TRAIN:
   lr: 0.0005

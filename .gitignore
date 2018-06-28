@@ -92,3 +92,7 @@ output
 model
 
 .db
+
+*.pdf
+
+*.gv
