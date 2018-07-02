@@ -219,6 +219,16 @@ if __name__ == '__main__':
     # from gluoncv.utils import viz
     # # logging.basicConfig(level=logging.INFO)
     train_images,val_images = label_train_test_split()
+    with open("output/dataset/val/val.lst","wt") as f:
+        for fname in val_images:
+            f.write(fname)
+            f.write("\r\n")
+    with open("output/dataset/train/train.lst","wt") as f:
+        for fname in train_images:
+            f.write(fname)
+            f.write("\r\n")
+        exit(0)
+
     print(len(train_images),len(val_images))
     train_dataset = getDataset("/data1/zyx/yks/baidu/round2/datasets/train.txt",images_set = train_images )
     print(len(train_dataset))
