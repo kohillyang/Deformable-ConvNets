@@ -7,6 +7,22 @@ from bbox.bbox_transform import clip_boxes
 
 
 # TODO: This two functions should be merged with individual data loader
+def bbox_flip(img,bbox,flip_y = False,flip_x = True):
+        height,width = img.shape[:2]
+        bbox = bbox.copy()
+        if flip_y:
+            ymax = height - bbox[:, 1]
+            ymin = height - bbox[:, 3]
+            bbox[:, 1] = ymin
+            bbox[:, 3] = ymax
+            img= img[::-1, :, :]
+        if flip_x:
+            xmax = width - bbox[:, 0]
+            xmin = width - bbox[:, 2]
+            bbox[:, 0] = xmin
+            bbox[:, 2] = xmax
+            img= img[:, ::-1, :]            
+        return img,bbox
 def get_image(roidb, config):
     """
     preprocess image and return processed roidb
@@ -26,7 +42,11 @@ def get_image(roidb, config):
         im = cv2.imread(roi_rec['image'], cv2.IMREAD_COLOR|cv2.IMREAD_IGNORE_ORIENTATION)
         if roidb[i]['flipped']:
             im = im[:, ::-1, :]
+        from random import randint
         new_rec = roi_rec.copy()
+        if randint(0,1):
+            im,boxes = bbox_flip(im,roi_rec["boxes"])
+            new_rec["boxes"] = boxes
         scale_ind = random.randrange(len(config.SCALES))
         target_size = config.SCALES[scale_ind][0]
         max_size = config.SCALES[scale_ind][1]

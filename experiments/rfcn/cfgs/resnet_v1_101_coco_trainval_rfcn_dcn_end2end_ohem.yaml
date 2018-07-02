@@ -1,12 +1,12 @@
 ---
 MXNET_VERSION: "mxnet"
-output_path: "./output/models/1280"
+output_path: "./output/models/1536_flipped"
 symbol: resnet_v1_101_rfcn_dcn
 gpus: '4,3,7,8'
 CLASS_AGNOSTIC: true
 SCALES:
-- 1280
-- 1280
+- 1536
+- 1536
 default:
   frequent: 100
   kvstore: device
